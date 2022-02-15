@@ -50,4 +50,3 @@ class ImageUtils():
 	def image_resize(self, image, width, height):
 		"""Resize image."""
 		return cv2.resize(image, (width, height))
-		
