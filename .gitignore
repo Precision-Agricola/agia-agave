@@ -1,5 +1,12 @@
 # Sample data
 SAMPLE_DATA/
+DATA/*
+
+# Documentation
+Docs/*
+
+# Debug
+debugger.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
