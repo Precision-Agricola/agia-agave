@@ -89,7 +89,13 @@ class CoreUtils:
 			cols = sum([factored[i][0]**factored[i][1] for i in range(1, len(factors))])
 		element_row = sample_no // rows 
 		element_col = sample_no // cols + sample_no % cols - element_row
-		width, heigh = Image.size[0], Image.size[1]
-
+		width, height = Image.size[0], Image.size[1]
+		pixels_per_row = width // rows
+		pixels_per_col = height // cols
+		left = element_col * pixels_per_row
+		right = left + pixels_per_row
+		top = element_row * pixels_per_col
+		bottom = top + pixels_per_col
+		return image.crop((left, top, right, bottom))
 
 		
