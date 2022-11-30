@@ -14,15 +14,15 @@ class CoreUtils:
         rgb_image: A image for visualization.
     """
 
-    def __init__(self):
+    def __init__(self, raw_images_path):
         self.images_set = []
         self.images_sampled = []
         self.images_set_processed = []
-        self.raw_images_path = ""
+        self.raw_images_path = raw_images_path
         self.rgb_image = None
 
-    @staticmethod
-    def load_images_from_integer_names(path: str, im_format: str = '.png') -> list(Image):
+
+    def load_images_from_integer_names(self, im_format = '.png'):
         """Load images from a path with integer names. The images must contain a set of five images
           numerated from 1-5. Format supported: .png, .tif
         Args:
@@ -30,7 +30,7 @@ class CoreUtils:
         Returns:
             A list of images.
         """
-        data_dir = Path(path)
+        data_dir = Path(self.raw_images_path)
         images_files = list(data_dir.glob("*" + im_format))
         images = []
         if not images_files:
@@ -41,26 +41,27 @@ class CoreUtils:
             image = Image.open(file)
             gray_image = ImageOps.grayscale(image)
             images.append(gray_image)
-        return images
-
-    @staticmethod
-    def build_rgb_image(images: list(Image)) -> Image:
+        self.images_set = images
+        return self.images_set     
+    
+    def build_rgb_image(self) -> Image:
         """Build an RGB image from a list of images.
         Args:
             images: A list of images.
         Returns:
             A RGB image.
         """
+        images = [] 
         if len(images) < 3:
             raise ValueError("Not sufficient channels in the set of images")
         for image in images:
             channels = image.size[2]
         if channels != 1:
             raise IndexError("Each image in set must be formatted in grayscale")
-        return Image.merge("RGB", (images[0], images[1], images[2]))
+        self.rgb_image =  Image.merge("RGB", (images[0], images[1], images[2]))
+        return self.rgb_image
 
-    @staticmethod
-    def get_segment_by_position(image: Image, size: tuple, slice_no: int) -> Image:
+    def get_segment_by_position(self, image: Image, size: tuple, slice_no: int) -> Image:
         """Get a sample of the image corresponding to n file and m column."""
         rows = size[0]
         cols = size[1]
