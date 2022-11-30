@@ -1,52 +1,55 @@
 """Image processing utilities."""
-import cv2
-import numpy as np
+from PIL import Image
+from numpy import array
+from sympy import factorint
 
-class ImageUtils():
-	"""Image processing utilities."""
 
-	def __init__(self, image):
-		"""Initialize image processing utilities."""
-		self.image = image
-		self.height, self.width = self.image.shape[:2]
-		self.channels = self.image.shape[2] if len(self.image.shape) > 2 else 1
 
-	def image_to_array(self, image):
-		"""Convert image to numpy array."""
-		return np.array(image)
+class ImageUtils:
+    """Image processing utilities."""
 
-	def	image_to_cv2(self, image):
-		"""Convert image to cv2 image."""
-		return cv2.imread(image)
-	
-	def image_to_gray(self):
-		"""Convert image to grayscale."""
-		return cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
-	
-	def image_to_hsv(self):
-		"""Convert image to hsv."""
-		return cv2.cvtColor(self.image, cv2.COLOR_BGR2HSV)
-	
-	def save_image(self, image, path):
-		"""Save image."""
-		cv2.imwrite(path, image)
+    def read_images_from_path(path:list) -> list:
+        """Read images in gray scale from a list of paths."""
+        images = []
+        for image_path in path:
+            image = Image.open(image_path)
+            image_array = array(image)
+            image_array[image_array<0] = 0
+            images.append(image_array)
+        return images
+        
+    def get_slice_by_matrix(image:array, matrix_size:tuple, slice_tuple:tuple) -> array:
+        """Get a slice from a well defined matrix."""
+        rows = matrix_size[0]
+        cols = matrix_size[1]
+        if slice_tuple[0]*slice_tuple[1] > rows*cols:
+            raise ValueError("Slice number out of range")
+        width = image.shape[0]
+        height = image.shape[1]
+        slice_width = width // cols
+        slice_height = height // rows
+        row = slice_tuple[0]
+        col = slice_tuple[1]
+        left = col * slice_width
+        right = left + slice_width
+        top = row * slice_height
+        bottom = top + slice_height
+        return image[left:right, top:bottom]
 
-	def image_2_PIL(self, image):
-		"""Convert image to PIL image."""
-		return Image.fromarray(image)	
-
-	def split_image(self, image):
-		"""Split image into channels."""
-		return cv2.split(image)
-	
-	def merge_image(self, channels):
-		"""Merge channels into image."""
-		return cv2.merge(channels)
-	
-	def image_to_binary(self, image, threshold=128):
-		"""Convert image to binary."""
-		return cv2.threshold(image, threshold, 255, cv2.THRESH_BINARY)[1]
-	
-	def image_resize(self, image, width, height):
-		"""Resize image."""
-		return cv2.resize(image, (width, height))
+    def get_slices_params(image:array, slices_no:int, sample_index:int) -> array:
+        """Segment the image according the factors fo the slices number."""
+        if sample_index > slices_no:
+            raise ValueError("Slice number out of range")
+        factors = factorint(slices_no)
+        factored = list(factors.items())
+        if len(factored) == 1 and factored[0][1] == 2:
+            rows = factored[0][0]
+            cols = factored[0][0]
+        else:
+            rows = factored[0][0]**factored[0][1]
+            cols = sum([factored[i][0]**factored[i][1] for i in range(1, len(factored))])
+        element_row = sample_index // cols + 1
+        element_col = sample_index % cols
+        if image.shape[0] < image.shape[1]:
+            return ((rows, cols), (element_row, element_col))
+        return ((cols, rows), (element_row, element_col))
