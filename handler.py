@@ -4,11 +4,11 @@ from os.path import join
 import matplotlib.pyplot as plt
 
 images_path = [
-	join('data', 'pinaple_ortho', '1.tif'),
-	join('data', 'pinaple_ortho', '2.tif'),
-	join('data', 'pinaple_ortho', '3.tif'),
-	join('data', 'pinaple_ortho', '4.tif'),
-	join('data', 'pinaple_ortho', '5.tif')
+	join('data', 'pineapple_ortho', '1.tif'),
+	join('data', 'pineapple_ortho', '2.tif'),
+	join('data', 'pineapple_ortho', '3.tif'),
+	join('data', 'pineapple_ortho', '4.tif'),
+	join('data', 'pineapple_ortho', '5.tif')
 	]
 
 images = ImageUtils.read_images_from_path(images_path)
