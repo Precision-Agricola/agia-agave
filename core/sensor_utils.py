@@ -14,10 +14,16 @@ class SensorUtils:
 
     def __init__(self, set_path):
         self.set_path = set_path
+        self.bands = ['red', 'green', 'blue', 'nir', 'red edge']
         self.meta = self.get_metadata(set_path)
         self.raw_images = []
-        self.bands =['red', 'green', 'blue', 'nir', 'red edge']
-        self.radiance_images = []
+        self.radiance_images = {
+            'red': None,
+            'green': None,
+            'blue': None,
+            'nir': None,
+            'red edge': None
+        }
 
     def process_sensor(self):
         self.read_raw_images()
@@ -49,7 +55,7 @@ class SensorUtils:
             band = meta.get_item('XMP:BandName').lower()
             band_index = self.bands.index(band)
             radiance_images.append(raw_image_to_radiance(meta, self.raw_images[band_index])[0])
-        self.radiance_images = radiance_images
+            self.radiance_images[band] = radiance_images
 
 class PanelCalibration(SensorUtils):
     """Utils for panel calibration and image correction"""
@@ -147,18 +153,18 @@ class PanelCalibration(SensorUtils):
         """Get panel reflectance factor from an image"""
         return self.panel_calibration[band]/mean(panel_region)
 
-    def correct_images(self, images):
+    def correct_images(self, radiance_images, reflactances):
         """Transform raw images to reflectance images and correct lens distortion"""
-        corrected_images = []
-        for i, image in enumerate(images):
-            corrected_images.append(self.correct_image(image, i))
+        corrected_images = {
+            'red': None,
+            'green': None,
+            'blue': None,
+            'nir': None,
+            'red edge': None
+        }
+        for band in reflactances.keys():
+            corrected_images[band] = radiance_images[band][0] * reflactances[band]
         return corrected_images
-    
-    def correct_image(self, images_set):
-        """Transform raw image to reflectance image and correct lens distortion"""
-        metas = self.get_metadata(images_set)
-        raw_images = self.read_raw_images(images_set)
-        radiance_images = self.raw_images_to_radiance(raw_images, metas)
-        corrected_images = []
-        for i, image in enumerate(radiance_images):
-            corrected_images.append(self.correct_radiance_image(image, i))
+
+
+
