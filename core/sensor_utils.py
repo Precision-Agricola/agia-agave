@@ -55,7 +55,7 @@ class SensorUtils:
             band = meta.get_item('XMP:BandName').lower()
             band_index = self.bands.index(band)
             radiance_images.append(raw_image_to_radiance(meta, self.raw_images[band_index])[0])
-            self.radiance_images[band] = radiance_images
+            self.radiance_images.update({band: radiance_images[band_index]})
 
 class PanelCalibration(SensorUtils):
     """Utils for panel calibration and image correction"""
@@ -153,7 +153,7 @@ class PanelCalibration(SensorUtils):
         """Get panel reflectance factor from an image"""
         return self.panel_calibration[band]/mean(panel_region)
 
-    def correct_images(self, radiance_images, reflactances):
+    def correct_images(self, radiance_images, reflectances):
         """Transform raw images to reflectance images and correct lens distortion"""
         corrected_images = {
             'red': None,
@@ -162,8 +162,8 @@ class PanelCalibration(SensorUtils):
             'nir': None,
             'red edge': None
         }
-        for band in reflactances.keys():
-            corrected_images[band] = radiance_images[band][0] * reflactances[band]
+        for band in reflectances.keys():
+            corrected_images.update({band: radiance_images[band]*reflectances[band]})
         return corrected_images
 
 
