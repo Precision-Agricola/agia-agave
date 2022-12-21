@@ -1,11 +1,13 @@
-#%%
+"""RedEdge Sensor Utils"""
 from micasense.metadata import Metadata
 from micasense.utils import raw_image_to_radiance, correct_lens_distortion
-from skimage import io
-from numpy import where, var
+from skimage import io, exposure
+from numpy import where, var, eye, float32, dstack
 from scipy import stats
-from cv2 import normalize, threshold, findContours, approxPolyDP, boundingRect, contourArea
-from cv2 import arcLength, NORM_MINMAX, RETR_TREE, CHAIN_APPROX_SIMPLE, CV_8U
+from cv2 import normalize, threshold, findContours, approxPolyDP, boundingRect, contourArea, GaussianBlur
+from cv2 import arcLength, NORM_MINMAX, RETR_TREE, CHAIN_APPROX_SIMPLE, CV_8U, MOTION_AFFINE
+from cv2 import findTransformECC, warpAffine, TERM_CRITERIA_EPS, TERM_CRITERIA_COUNT, INTER_LINEAR
+from cv2 import WARP_INVERSE_MAP
 import os
 
 class Sensor:
@@ -52,8 +54,6 @@ class Panel(Sensor):
         self.panel_values = self.get_panel_values()
         self.panel_regions = self.get_panel_regions()
         self.reflectance_factor = self.get_reflectance_factor()
-        self.reflectance_images = self.radiance_to_reflectance()
-        self.corrected_images = self.correct_distortion()
 
     def get_panel_values(self):
         """Get panel values from metadata"""
@@ -111,18 +111,57 @@ class Panel(Sensor):
             reflectance_factor.update({band: factor})
         return reflectance_factor
 
-    def radiance_to_reflectance(self):
-        """Convert radiance images to reflectance"""
+class ImageProcessor():
+
+    def __init__(self, sensor: Sensor, panel: Panel):
+        sensor = self.register_images(sensor)
+        self.reflectance_images = self.get_reflectance_images(sensor, panel)
+        self.corrected_images = self.correct_lens(sensor)
+        self.adjusted_images = self.adjust_images()
+    
+    def register_images(self, sensor: Sensor):
+        """Register images"""
+        raw_images = sensor.raw_images
+        reg_images = sensor.raw_images
+        aligned_images = {}
+        normalized_images = {}
+        warp_mode = MOTION_AFFINE
+        warp_matrix = eye(2, 3, dtype=float32)
+        number_of_iterations = 1000
+        termination_eps = 1e-10
+        criteria = (TERM_CRITERIA_EPS | TERM_CRITERIA_COUNT, number_of_iterations, termination_eps)
+        for band in sensor.bands:
+            normalized_images.update({band: normalize(raw_images[band], None, 0, 255, NORM_MINMAX, CV_8U)})
+        reference_band = 'red edge'
+        reference_image = normalized_images[reference_band]
+        for band in sensor.bands:
+            _, warp_matrix = findTransformECC(reference_image, normalized_images[band], warp_matrix, warp_mode, criteria)
+            aligned_image = warpAffine(reg_images[band], warp_matrix, (raw_images[band].shape[1], raw_images[band].shape[0]), flags=WARP_INVERSE_MAP + INTER_LINEAR)
+            aligned_images.update({band: aligned_image})
+        sensor.radiance_images = aligned_images
+        return sensor 
+
+    def get_reflectance_images(self, sensor: Sensor, panel: Panel):
+        """Get reflectance images from sensor and panel"""
         reflectance_images = {}
-        for band in self.bands:
-            reflectance = self.radiance_images[band] * self.reflectance_factor[band]
-            reflectance_images.update({band: reflectance})
+        for band in sensor.bands:
+            image = sensor.radiance_images[band] * panel.reflectance_factor[band]
+            reflectance_images.update({band: image})
         return reflectance_images
 
-    def correct_distortion(self):
-        """Correct lens distortion"""
+    def correct_lens(self, sensor: Sensor):
+        """Correct lens distortion from sensor and panel"""
         corrected_images = {}
-        for band in self.bands:
-            corrected_image = correct_lens_distortion(self.meta[band], self.reflectance_images[band])
-            corrected_images.update({band: corrected_image})
+        for band in sensor.bands:
+            image = correct_lens_distortion(sensor.meta[band], self.reflectance_images[band])
+            corrected_images.update({band: image})
         return corrected_images
+
+    def adjust_images(self):
+        """Adjust images"""
+        images = {}
+        for band in self.corrected_images.keys():
+            image = normalize(self.corrected_images[band], None, 0, 255, NORM_MINMAX, CV_8U)
+            image = exposure.adjust_gamma(image, 0.85)
+            images.update({band: image})
+        return images
