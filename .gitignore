@@ -2,6 +2,10 @@
 SAMPLE_DATA/
 DATA/*
 
+#Temporary files
+temp_folder/*.*
+temp_folder/*
+
 # Documentation
 Docs/*
 
@@ -13,6 +17,7 @@ docs/
 __pycache__/
 *.py[cod]
 *$py.class
+*.vscode
 
 # C extensions
 *.so
