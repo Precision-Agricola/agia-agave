@@ -4,33 +4,36 @@ Utils and tools for IA applied to precision agriculture. Currently running exper
 
 # Development Plan
 
-Currently 
+Currently
 
 ## AI PipeLine Setup
 
-- Very Deep Convolutional Neural Networks (N/A)
-- Pre-trained Models, re-train approach (N/A)
-- Deep forest and documentation (4 days)
+- Very Deep Convolutional Neural Networks _(N/A)_
+- Pre-trained Models, re-train approach _(N/A)_
+- Deep forest and documentation _(3 days)_
 
-**Total days remaining: 4**
+**Total days remaining: 3**
+
 ## Data Treatment
 
-- Create Train/Test data (4-5 days)
-- Data augmentation (1-2 day)
-- Image acquisition (N/A)
-- Image treatment (N/A)
-    - Raw images
+- Create Train/Test data _(2 weeks)_
+- Data augmentation _(1-2 day)_
+- Image acquisition _(N/A)_
+- Image treatment _(N/A)_
+    - Raw images 
     - Orthomosaic
-- Image enhancement (Report delivery)
-- Post-Processing results
+- Image enhancement (Report delivery) _(N/A)_
+- Post-Processing results _(3 days)_
     - Region Properties and stats
 
-### Deep Forest and AI implementations  
 
-- Agave Segmentation ,
-- Agave Fusarium Identification,
-- Agave Phyllophaga Detection
-- Pineapple Fruit Detection,
+**Total days remainig: 2 weeks**
+### Deep Forest and AI Experimentation and Implementation
+
+- Agave Segmentation _(3 weeks)_,
+- Agave Fusarium Identification _(1 week)_,
+- Agave Phyllophaga Detection _(1 week)_
+- Pineapple Fruit Detection _(2 weeks)_,
 
 
 ## Production 
@@ -40,3 +43,4 @@ Currently
 - Front-End dev
 - Back-End dev
 - Testing and maintenance
+
