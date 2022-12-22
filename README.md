@@ -1,6 +1,14 @@
 # Agia-agave
 
-Utils and tools for IA applied to precision agriculture. Currently running experimentation on Agave, Pineapple, and Banana plants.
+AI utilities and tools applied to precision agriculture. Currently in experimentation and development of industrial applications in agave, pineapple, and plantain plants.
+
+## Project Manager
+
+Alberto De Obeso
+
+## Development Lead
+
+[Precision Agricola](http://www.precisionagricola.com/)
 
 # Development Plan
 
@@ -28,6 +36,7 @@ Currently
 
 
 **Total days remainig: 2 weeks**
+
 ### Deep Forest and AI Experimentation and Implementation
 
 - Agave Segmentation _(3 weeks)_,
@@ -35,7 +44,7 @@ Currently
 - Agave Phyllophaga Detection _(1 week)_
 - Pineapple Fruit Detection _(2 weeks)_,
 
-
+**Total days remainig: 2 months**
 ## Production 
 
 - Consult client specifications
@@ -43,4 +52,3 @@ Currently
 - Front-End dev
 - Back-End dev
 - Testing and maintenance
-
