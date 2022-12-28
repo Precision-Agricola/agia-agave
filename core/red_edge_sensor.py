@@ -2,10 +2,9 @@
 from micasense.metadata import Metadata
 from micasense.utils import raw_image_to_radiance, correct_lens_distortion
 from skimage import io, exposure
-from numpy import where, var, eye, float32, dstack
-from scipy import stats
-from cv2 import normalize, threshold, findContours, approxPolyDP, boundingRect, contourArea, GaussianBlur
-from cv2 import arcLength, NORM_MINMAX, RETR_TREE, CHAIN_APPROX_SIMPLE, CV_8U, MOTION_AFFINE
+from numpy import var, eye, float32, argmin
+from cv2 import normalize, threshold, findContours, boundingRect, contourArea
+from cv2 import NORM_MINMAX, RETR_TREE, CHAIN_APPROX_SIMPLE, CV_8U, MOTION_AFFINE
 from cv2 import findTransformECC, warpAffine, TERM_CRITERIA_EPS, TERM_CRITERIA_COUNT, INTER_LINEAR
 from cv2 import WARP_INVERSE_MAP
 import os
@@ -79,28 +78,17 @@ class Panel(Sensor):
         image = normalize(radiance_image, None, 0, 255, NORM_MINMAX, CV_8U)
         _, thresh = threshold(image, 127, 255, 0)
         contours, _ = findContours(thresh, RETR_TREE, CHAIN_APPROX_SIMPLE)
-        detections = []
         variances = []
         bounding_boxes = []
-        for cnt in contours:
-            approx = approxPolyDP(cnt, 0.01*arcLength(cnt, True), True)
-            if len(approx) != 4:
-                continue
-            _, _, w, h = boundingRect(cnt)
+        for i, cnt in enumerate(contours):
+            box = boundingRect(cnt)
             area = contourArea(cnt)
-            area_thresh = 0.00025*image.shape[0]*image.shape[1]
-            ratio = float(w)/h
-            if 0.95 < ratio < 1.05 and area > area_thresh:
-                detections.append(cnt)
-                box = boundingRect(cnt)
-                x, y, w, h = box
-                variance = var(image[x:w + x, y:h + y])
-                variances.append(variance)
+            if area > 0.002 * image.shape[0] * image.shape[1]:
+                height, width = box[3], box[2]
+                left, top = box[0], box[1]
+                variances.append(var(image[top:top+height, left:left+width]))
                 bounding_boxes.append(box)
-        z_score = stats.zscore(variances)
-        z_threshold =  1
-        outliers = where(z_score > z_threshold)
-        panel_region = bounding_boxes[outliers[0][0]]
+        panel_region = bounding_boxes[argmin(variances)]
         return panel_region
 
     def get_reflectance_factor(self):
@@ -127,8 +115,8 @@ class ImageProcessor():
         normalized_images = {}
         warp_mode = MOTION_AFFINE
         warp_matrix = eye(2, 3, dtype=float32)
-        number_of_iterations = 1000
-        termination_eps = 1e-10
+        number_of_iterations = 500
+        termination_eps = .00005
         criteria = (TERM_CRITERIA_EPS | TERM_CRITERIA_COUNT, number_of_iterations, termination_eps)
         for band in sensor.bands:
             normalized_images.update({band: normalize(raw_images[band], None, 0, 255, NORM_MINMAX, CV_8U)})
