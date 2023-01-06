@@ -1,2 +1,54 @@
-# agia-agave
-Utils and tools for IA applied to precision agriculture
+# Agia-agave
+
+AI utilities and tools applied to precision agriculture. Currently in experimentation and development of industrial applications in agave, pineapple, and plantain plants.
+
+## Project Manager
+
+Alberto De Obeso
+
+## Development Lead
+
+[Precision Agricola](http://www.precisionagricola.com/)
+
+# Development Plan
+
+Currently
+
+## AI PipeLine Setup
+
+- Very Deep Convolutional Neural Networks _(N/A)_
+- Pre-trained Models, re-train approach _(N/A)_
+- Deep forest and documentation _(3 days)_
+
+**Total days remaining: 3**
+
+## Data Treatment
+
+- Create Train/Test data _(2 weeks)_
+- Data augmentation _(1-2 day)_
+- Image acquisition _(N/A)_
+- Image treatment _(N/A)_
+    - Raw images 
+    - Orthomosaic
+- Image enhancement (Report delivery) _(N/A)_
+- Post-Processing results _(3 days)_
+    - Region Properties and stats
+
+
+**Total days remainig: 2 weeks**
+
+### Deep Forest and AI Experimentation and Implementation
+
+- Agave Segmentation _(3 weeks)_,
+- Agave Fusarium Identification _(1 week)_,
+- Agave Phyllophaga Detection _(1 week)_
+- Pineapple Fruit Detection _(2 weeks)_,
+
+**Total days remainig: 2 months**
+## Production 
+
+- Consult client specifications
+- Design developing plan (Analysis)
+- Front-End dev
+- Back-End dev
+- Testing and maintenance
