@@ -8,8 +8,8 @@ def main():
     panel_set_path = []
     sensor_set_path = []
     for i in range(1, 6):
-        panel_set_path.append(join("DATA", "pineapple", "SET000", "PANEL", "IMG_0000_{}.tif".format(i)))
-        sensor_set_path.append(join("DATA", "pineapple", "SET000", "DATA", "IMG_0007_{}.tif".format(i)))
+        panel_set_path.append(join("DATA", "agave","PANEL", "IMG_0001_{}.tif".format(i)))
+        sensor_set_path.append(join("DATA", "agave", "DATA", "IMG_0007_{}.tif".format(i)))
     panel = Panel(set_path=panel_set_path)
     sensor = Sensor(set_path=sensor_set_path)
     image_processed = ImageProcessor(panel=panel, sensor=sensor)
