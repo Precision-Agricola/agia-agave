@@ -20,10 +20,10 @@ class AgaveModel:
     model.config['gpus'] = '-1' #move to GPU and use all the GPU resources
     model.config["train"]["csv_file"] = self.annotations_file
     model.config["train"]["root_dir"] = os.path.dirname(self.annotations_file)
-    model.config["score_thresh"] = 0.1
-    model.config["nms_thresh"] = 0.05
+    model.config["score_thresh"] = 0.5
+    model.config["nms_thresh"] = 0.005
     model.config["train"]["lr"] = 0.0001
-    model.config["train"]['epochs'] = 15
+    model.config["train"]['epochs'] = 30
     model.config["validation"]["csv_file"] = self.validation_file
     model.config["validation"]["root_dir"] = os.path.dirname(self.validation_file)
     return model
@@ -38,8 +38,6 @@ class AgaveModel:
     return model
   
   def model_save_result(self, model):
-    if not os.path.exists(self.save_dir):
-        os.makedirs(self.save_dir)
     results = model.evaluate(
     self.annotations_file,
     os.path.dirname(self.annotations_file),
@@ -58,6 +56,17 @@ def main():
     results = agave_model.model_save_result(model)
     msg.info(f"Model precision: {results['box_precision']}")
     msg.info(f"Model recall: {results['box_recall']}")
+    return model
 
-if __name__ == "__main__":
-    main()
+
+model = main()
+#%% save the model with the today's date
+import datetime
+import os
+import shutil
+
+today = datetime.date.today()
+model_path = os.path.join(os.getcwd(), "models", f"agave_{today}.h5")
+model.save_model(model_path)
+
+#%%
