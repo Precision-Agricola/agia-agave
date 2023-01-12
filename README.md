@@ -1,6 +1,6 @@
 # Agia-agave
 
-AI utilities and tools applied to precision agriculture. Currently in experimentation and development of industrial applications in agave, pineapple, and plantain plants.
+AI utilities and tools applied to precision agriculture. Status: experimentation and development of industrial applications (production estimation, plant counting, fruit detection, etc.) in agave, pineapple, and plantain plants.
 
 ## Project Manager
 
@@ -52,3 +52,30 @@ Currently
 - Front-End dev
 - Back-End dev
 - Testing and maintenance
+
+# Setup
+
+Python 3.7 or newer is required and we have prepared a yml environment. First, install python from the [official web](https://www.python.org/) according to your operating system (currently Agia is not dockerized). Then activate and run the virtual enviroment, we recommend to use Anaconda. We recommend using Anaconda, although we also include the requirements file. Using Anaconda:
+
+``` bash
+conda env create -f src/agiaenv.yml
+```
+
+Or
+
+``` bash
+pip install -r src/requirements.txt
+```
+
+The models and training data are stored in a backblaze bucket. To sync data to the cloud, the backblaze must be accessed via the [CLI](https://www.backblaze.com/b2/docs/quick_command_line.html). Use the application credential to authorize the bucket interaction. Then you can download the model wanted, for example:
+
+``` bash
+b2 authorize-account
+b2 download-file-by-name AgiaDev models/agave_2023-01-11.zip
+```
+
+Another way to synchronize the training data and the models is by running the script (the app id and the key are required):
+
+``` bash
+python data-sync.py
+```
