@@ -1,4 +1,3 @@
-#%%
 from core.image_utils import ImageUtils
 from os.path import join 
 from numpy import dstack
@@ -49,7 +48,5 @@ def main():
     io.imsave('temp_folder/sample_rgb.tif', samples.rgb_image)
     return samples
 
-
-#%%
 if __name__ == '__main__':
     main()
