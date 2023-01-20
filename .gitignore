@@ -3,8 +3,8 @@ SAMPLE_DATA/
 DATA/*
 
 #Temporary files
-temp_folder/*.*
-temp_folder/*
+#temp_folder/*.*
+#temp_folder/*
 
 # Documentation
 Docs/*
