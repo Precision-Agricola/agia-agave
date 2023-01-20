@@ -1,5 +1,8 @@
 """RedEdge Sensor Utils"""
+
+# pylint: disable=E0401, E0411
 from micasense.metadata import Metadata
+from glob import glob
 from micasense.utils import raw_image_to_radiance, correct_lens_distortion
 from skimage import io, exposure
 from numpy import var, eye, float32, argmin
@@ -10,6 +13,7 @@ from cv2 import WARP_INVERSE_MAP
 import os
 
 class Sensor:
+    """ Micasense RedEdge Sensor Class"""
     def __init__(self, set_path):
         self.set_path = set_path
         self.bands = []
@@ -20,19 +24,21 @@ class Sensor:
 
     def get_metadata(self, set_path):
         """Get metadata for all images in a set"""
+        if isinstance(set_path, str):
+            set_path = glob(os.path.join(set_path, '*.tif'))
         metas = {}
         if os.name == 'nt':
-            exiftoolPath = os.environ.get('exiftoolpath')
+            exiftool_path = os.environ.get('exiftoolpath')
         else:
-            exiftoolPath = None
+            exiftool_path = None
         for image_path in set_path:
-            meta = Metadata(image_path, exiftoolPath=exiftoolPath)
+            meta = Metadata(image_path, exiftoolPath=exiftool_path)
             band = meta.get_item('XMP:BandName').lower()
             metas.update({band: meta})
             self.bands.append(band)
             self.images_path.update({band: image_path})
         return metas
-    
+
     def read_raw_images(self):
         """Read raw images from a set"""
         raw_images = {}
@@ -44,10 +50,13 @@ class Sensor:
         """Convert raw images to radiance"""
         radiance_images = {}
         for band in self.bands:
-            radiance_images.update({band: raw_image_to_radiance(self.meta[band], self.raw_images[band])[0]})
+            radiance_images.update({
+                band: raw_image_to_radiance(
+                        self.meta[band], self.raw_images[band])[0]})
         return radiance_images
 
 class Panel(Sensor):
+    """ Micasense RedEdge Panel Class (inherits from Sensor)"""
     def __init__(self, set_path):
         super().__init__(set_path)
         self.panel_values = self.get_panel_values()
@@ -57,11 +66,11 @@ class Panel(Sensor):
     def get_panel_values(self):
         """Get panel values from metadata"""
         return {
-            "blue": 0.67, 
-            "green": 0.69, 
-            "red": 0.68, 
-            "red edge": 0.67, 
-            "nir": 0.61 
+            "blue": 0.67,
+            "green": 0.69,
+            "red": 0.68,
+            "red edge": 0.67,
+            "nir": 0.61
         }
 
     def get_panel_regions(self):
@@ -80,7 +89,7 @@ class Panel(Sensor):
         contours, _ = findContours(thresh, RETR_TREE, CHAIN_APPROX_SIMPLE)
         variances = []
         bounding_boxes = []
-        for i, cnt in enumerate(contours):
+        for cnt in contours:
             box = boundingRect(cnt)
             area = contourArea(cnt)
             if area > 0.002 * image.shape[0] * image.shape[1]:
@@ -100,13 +109,14 @@ class Panel(Sensor):
         return reflectance_factor
 
 class ImageProcessor():
+    """ Micasense RedEdge Image Processor Class"""
 
     def __init__(self, sensor: Sensor, panel: Panel):
         sensor = self.register_images(sensor)
         self.reflectance_images = self.get_reflectance_images(sensor, panel)
         self.corrected_images = self.correct_lens(sensor)
         self.adjusted_images = self.adjust_images()
-    
+
     def register_images(self, sensor: Sensor):
         """Register images"""
         raw_images = sensor.raw_images
@@ -119,15 +129,28 @@ class ImageProcessor():
         termination_eps = .00005
         criteria = (TERM_CRITERIA_EPS | TERM_CRITERIA_COUNT, number_of_iterations, termination_eps)
         for band in sensor.bands:
-            normalized_images.update({band: normalize(raw_images[band], None, 0, 255, NORM_MINMAX, CV_8U)})
+            normalized_images.update(
+                {band: normalize(
+                    raw_images[band], None, 0, 255, NORM_MINMAX, CV_8U)})
         reference_band = 'red edge'
         reference_image = normalized_images[reference_band]
         for band in sensor.bands:
-            _, warp_matrix = findTransformECC(reference_image, normalized_images[band], warp_matrix, warp_mode, criteria)
-            aligned_image = warpAffine(reg_images[band], warp_matrix, (raw_images[band].shape[1], raw_images[band].shape[0]), flags=WARP_INVERSE_MAP + INTER_LINEAR)
+            _, warp_matrix = findTransformECC(
+                reference_image,
+                normalized_images[band],
+                warp_matrix, warp_mode,
+                criteria
+                )
+            aligned_image = warpAffine(
+                reg_images[band],
+                warp_matrix,(
+                    raw_images[band].shape[1],
+                    raw_images[band].shape[0]),
+                    flags=WARP_INVERSE_MAP + INTER_LINEAR
+                    )
             aligned_images.update({band: aligned_image})
         sensor.radiance_images = aligned_images
-        return sensor 
+        return sensor
 
     def get_reflectance_images(self, sensor: Sensor, panel: Panel):
         """Get reflectance images from sensor and panel"""
