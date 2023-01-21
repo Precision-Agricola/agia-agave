@@ -18,7 +18,7 @@ class ImageUtils:
             images.append(image_array)
         return images
         
-    def get_sample_by_matrix(self, image:array, matrix_size:tuple, slice_tuple:tuple) -> array:
+    def get_sample_by_matrix(image:array, matrix_size:tuple, slice_tuple:tuple) -> array:
         """Get a slice from a well defined matrix."""
         rows = matrix_size[0]
         cols = matrix_size[1]
@@ -34,9 +34,9 @@ class ImageUtils:
         right = left + slice_width
         top = row * slice_height
         bottom = top + slice_height
-        return image[left:right, top:bottom]
+        return image[top:bottom, left:right]
 
-    def get_sample_by_list(self, image:array, slices_no:int, sample_index:int) -> array:
+    def get_sample_by_list(image:array, slices_no:int, sample_index:int) -> array:
         """Segment the image according the factors fo the slices number."""
         if sample_index >= slices_no or sample_index < 0:
             raise ValueError("Slice number out of range")
