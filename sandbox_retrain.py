@@ -59,5 +59,27 @@ def main():
     msg.info(f"Model precision: {results['box_precision']}")
     msg.info(f"Model recall: {results['box_recall']}")
 
-if __name__ == "__main__":
-    main()
+
+#%%
+agave_model = AgaveModel()
+model = agave_model.model_init()
+model = agave_model.model_gpu_config(model)
+model = agave_model.model_trainer(model)
+model = agave_model.model_train(model)
+results = agave_model.model_save_result(model)
+msg.info(f"Model precision: {results['box_precision']}")
+msg.info(f"Model recall: {results['box_recall']}")
+
+
+#
+#%%
+from os.path import join 
+import matplotlib.pyplot as plt
+
+
+path = join('temp_folder','ortomosaic', 'rgb_sample.tif')
+img = model.predict_image(path=path, return_plot=True)
+# reverse channel order
+img = img[:, :, ::-1]
+plt.imshow(img[:200,:400,:])
+
