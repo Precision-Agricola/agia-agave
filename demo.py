@@ -1,27 +1,29 @@
 """ Run the deep forest model retrain process end to end. """
-#%%
+
 from core.train import TrainUtils
-from core.train import Trainer, Paths
-from os.path import join
+from src.conf.config import DeepForestConfig
+from hydra.core.config_store import ConfigStore
+from wasabi import Printer
+import hydra
+msg = Printer()
 
-# define the input and output paths
-input_path = join('DATA', 'rgb_12_pxl', 'sample.tif')
-output_path = join('DATA', 'rgb_12_pxl', 'mosaic')
-train_folder = join('DATA', 'rgb_12_pxl', 'train', 'labels')
-trainer = Trainer(
-	paths=Paths(
-		input_image=input_path,
-		output=output_path,
-		labels=train_folder
-	)
-)
+config_store = ConfigStore.instance()
+config_store.store(name="deep_forest_config", node=DeepForestConfig)
 
-# create the training mosaic
-trainer = TrainUtils(trainer)
-trainer.create_train_mosaic(3, 3)
+@hydra.main(config_path= "src/conf", config_name="config_gpu", version_base="1.1")
+def main(config: DeepForestConfig): 
+    """ Main function to run the deep forest model retrain process end to end."""
 
-# then create the csv file with the labels. once the mosaic is created, manually label the images
-trainer.create_train_csv()
+    trainer = TrainUtils(config)
+    trainer.create_train_mosaic(
+        columns=config.preprocessing.columns,
+        rows=config.preprocessing.rows,
+    )
+    trainer.create_train_csv(
+        train_file_name=config.paths.train_file_name,
+    )
+    model = trainer.train()
+    model.trainer.fit(model)
 
-
-
+if __name__ == "__main__":
+    main()
