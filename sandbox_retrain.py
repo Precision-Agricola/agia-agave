@@ -59,5 +59,34 @@ def main():
     msg.info(f"Model precision: {results['box_precision']}")
     msg.info(f"Model recall: {results['box_recall']}")
 
-if __name__ == "__main__":
-    main()
+
+#%%
+agave_model = AgaveModel()
+model = agave_model.model_init()
+model = agave_model.model_gpu_config(model)
+model = agave_model.model_trainer(model)
+model = agave_model.model_train(model)
+results = agave_model.model_save_result(model)
+msg.info(f"Model precision: {results['box_precision']}")
+msg.info(f"Model recall: {results['box_recall']}")
+
+
+#%% save the model using pt format
+
+import torch
+from os.path import join
+from deepforest import main as df_main
+from matplotlib import pyplot as plt
+
+model_path = join('temp_folder','bird_release.pt')
+predict_path = join('temp_folder','ortomosaic', 'ortomosaicsegment_0_1.png')
+
+df_main = df_main.deepforest()
+df_main.load_state_dict(state_dict=torch.load(model_path))
+df_main.use_release()
+
+image = df_main.predict_image(path=predict_path, return_plot=True)
+image = image[:,:,::-1]
+
+plt.imshow(image)
+

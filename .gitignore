@@ -3,7 +3,7 @@ SAMPLE_DATA/
 DATA/*
 
 #Temporary files
-#temp_folder/*.*
+temp_folder/*.pt
 #temp_folder/*
 
 # Documentation
@@ -12,6 +12,9 @@ Docs/*
 # Debug
 debugger.py
 docs/
+
+# Logs
+outputs/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

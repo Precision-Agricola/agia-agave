@@ -1,0 +1,19 @@
+
+# model training hyper parameters
+params:
+  workers: 0
+  score_thresh: 0.1
+  nms_thresh: 0.05
+  lr: 0.0001
+  epochs: 15
+
+paths:
+  input_image: ${hydra:runtime.cwd}/DATA/rgb_12_pxl/sample.tif
+  mosaic_output: ${hydra:runtime.cwd}/DATA/rgb_12_pxl/mosaic
+  labels: ${hydra:runtime.cwd}/DATA/rgb_12_pxl/train/labels
+  train_file_name: ${hydra:runtime.cwd}/DATA/rgb_12_pxl/train/train.csv
+
+preprocessing:
+  rows: 2
+  columns: 2
+
