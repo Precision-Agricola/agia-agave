@@ -1,10 +1,11 @@
 """ Run the deep forest model retrain process end to end. """
-
+#%%
 from core.train import TrainUtils
 from src.conf.config import DeepForestConfig
 from hydra.core.config_store import ConfigStore
 from wasabi import Printer
 import hydra
+from skimage import io
 msg = Printer()
 
 config_store = ConfigStore.instance()
@@ -24,6 +25,18 @@ def main(config: DeepForestConfig):
     )
     model = trainer.train()
     model.trainer.fit(model)
+    image = model.predict_image(
+        path=config.paths.test_file_name,
+        return_plot=True
+        )
+    io.imsave(config.paths.test_file_name.replace('png','tif'), image[:,:,::-1])
+    return model
 
 if __name__ == "__main__":
     main()
+
+#%%
+model = main()
+
+#%%
+print('hello world')

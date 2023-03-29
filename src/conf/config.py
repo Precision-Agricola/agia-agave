@@ -6,6 +6,7 @@ class Paths:
 	mosaic_output: str
 	labels: str
 	train_file_name: str
+	test_file_name: str
 
 @dataclass
 class Params:

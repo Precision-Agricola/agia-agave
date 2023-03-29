@@ -1,9 +1,9 @@
 params:
   workers: 0
   gpus: '-1'
-  score_thresh: 0.01
-  nms_thresh: 0.05
-  lr: 0.0001
+  score_thresh: 0.1
+  nms_thresh: 0.5
+  lr: 0.00001
   epochs: 15
 
 paths:
@@ -11,6 +11,7 @@ paths:
   mosaic_output: ${hydra:runtime.cwd}/DATA/rgb_12_pxl/mosaic
   labels: ${hydra:runtime.cwd}/DATA/rgb_12_pxl/train/labels
   train_file_name: ${hydra:runtime.cwd}/DATA/rgb_12_pxl/train/train.csv
+  test_file_name: ${hydra:runtime.cwd}/temporal/crop
 
 preprocessing:
   rows: 2

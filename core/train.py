@@ -77,6 +77,15 @@ class TrainUtils:
         model.config['train']['root_dir'] = dirname(self.trainer_config.paths.train_file_name)
         return model
 
+    def predict_test(self, model:deepforest, test_file_name:str) -> None:
+        """Predict the test images."""
+        image = model.predict_image_file(
+            path=test_file_name,
+            show_plot=True)
+        io.imsave(join(dirname(test_file_name), f'predicted_{test_file_name}'), image)
+        return self
+        
+
     @staticmethod
     def get_files (path:str, ext:str = '.png') -> list:
         """ Return a list of the files in the path that match the given format. """

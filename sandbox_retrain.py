@@ -71,15 +71,22 @@ msg.info(f"Model precision: {results['box_precision']}")
 msg.info(f"Model recall: {results['box_recall']}")
 
 
-#
-#%%
-from os.path import join 
-import matplotlib.pyplot as plt
+#%% save the model using pt format
 
+import torch
+from os.path import join
+from deepforest import main as df_main
+from matplotlib import pyplot as plt
 
-path = join('temp_folder','ortomosaic', 'rgb_sample.tif')
-img = model.predict_image(path=path, return_plot=True)
-# reverse channel order
-img = img[:, :, ::-1]
-plt.imshow(img[:200,:400,:])
+model_path = join('temp_folder','bird_release.pt')
+predict_path = join('temp_folder','ortomosaic', 'ortomosaicsegment_0_1.png')
+
+df_main = df_main.deepforest()
+df_main.load_state_dict(state_dict=torch.load(model_path))
+df_main.use_release()
+
+image = df_main.predict_image(path=predict_path, return_plot=True)
+image = image[:,:,::-1]
+
+plt.imshow(image)
 
