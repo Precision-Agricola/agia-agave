@@ -10,6 +10,7 @@ temp_folder/*.pt
 Docs/*
 
 # Debug
+*debug*.py
 debugger.py
 docs/
 
